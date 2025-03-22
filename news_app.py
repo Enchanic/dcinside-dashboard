@@ -4,8 +4,8 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 import re
 
-# --------------------- 다크모드 테마 설정 ---------------------
-st.set_page_config(page_title="디시인사이드 개념글 수집기", layout="wide")
+# --------------------- 다크모드 테마 + 모바일 최적 레이아웃 설정 ---------------------
+st.set_page_config(page_title="디시인사이드 개념글 수집기", layout="centered")
 st.markdown("""
     <style>
     html, body, [class*="css"]  {
@@ -30,6 +30,7 @@ st.markdown("""
     a {
         color: #ffffff !important;
         text-decoration: underline;
+        word-break: break-word;
     }
     .post-date {
         font-size: 0.8em;
@@ -87,7 +88,8 @@ def fetch_gall_contents(gall_id):
 # --------------------- 갤러리별 개념글 출력 ---------------------
 for name, gall_id in gallery_list.items():
     with st.expander(f"📌 {name} ({gall_id}) 개념글 보기"):
-        try:
+        with st.spinner("개념글 불러오는 중..."):
+            try:
             posts = fetch_gall_contents(gall_id)
             if posts:
                 for title, link, date in posts:
