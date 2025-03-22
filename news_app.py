@@ -3,6 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
 import re
+import time
 
 # --------------------- 다크모드 테마 + 모바일 최적 레이아웃 설정 ---------------------
 st.set_page_config(page_title="디시인사이드 개념글 수집기", layout="centered")
@@ -51,12 +52,23 @@ gallery_list = {
     "정치 갤러리": "politics",
     "야구 갤러리": "baseball_new9",
     "게임 갤러리": "game",
-    "이세계 갤러리": "isekaigal"
+    "이세계 갤러리": "isekaigal",
+    "연예 갤러리": "enter",
+    "건강 갤러리": "health",
+    "대학 갤러리": "univ",
+    "자동차 갤러리": "car",
+    "연극/뮤지컬 갤러리": "theatermusical"
 }
 
 st.title("🔥 디시인사이드 인기 갤러리 개념글 수집기")
 st.markdown(f"#### 📅 오늘 날짜: {datetime.now().strftime('%Y-%m-%d')}")
 st.markdown("[👉 디시인사이드 메인으로 가기](https://www.dcinside.com)")
+
+# --------------------- 검색어 입력 ---------------------
+search_query = st.sidebar.text_input("🔍 개념글 제목 검색", "")
+refresh = st.sidebar.button("🔄 새로고침")
+st.sidebar.markdown("---")
+st.sidebar.markdown("갤러리 수: " + str(len(gallery_list)))
 
 # --------------------- 개념글 수집 함수 ---------------------
 def fetch_gall_contents(gall_id):
@@ -90,11 +102,16 @@ for name, gall_id in gallery_list.items():
     with st.expander(f"📌 {name} ({gall_id}) 개념글 보기"):
         with st.spinner("개념글 불러오는 중..."):
             try:
-            posts = fetch_gall_contents(gall_id)
-            if posts:
-                for title, link, date in posts:
-                    st.markdown(f"- [{title}]({link}) <span class='post-date'>({date})</span>", unsafe_allow_html=True)
-            else:
-                st.write("(표시할 개념글이 없습니다)")
-        except:
-            st.write("❌ 데이터를 불러오지 못했습니다.")
+                posts = fetch_gall_contents(gall_id)
+                if posts:
+                    for title, link, date in posts:
+                        if search_query.lower() in title.lower():
+                            st.markdown(f"- [{title}]({link}) <span class='post-date'>({date})</span>", unsafe_allow_html=True)
+                else:
+                    st.write("(표시할 개념글이 없습니다)")
+            except:
+                st.write("❌ 데이터를 불러오지 못했습니다.")
+
+# --------------------- 자동 새로고침 ---------------------
+if refresh:
+    st.experimental_rerun()
