@@ -5,7 +5,6 @@ from datetime import datetime
 import re
 import time
 
-# --------------------- 다크모드 테마 + 모바일 최적 레이아웃 설정 ---------------------
 st.set_page_config(page_title="디시인사이드 개념글 수집기", layout="centered")
 st.markdown("""
     <style>
@@ -28,20 +27,27 @@ st.markdown("""
         background-color: #444444;
         color: #ffffff;
     }
-    a {
-        color: #ffffff !important;
-        text-decoration: underline;
-        word-break: break-word;
+    a.link-button {
+        display: inline-block;
+        background-color: #444;
+        color: #fff !important;
+        padding: 6px 12px;
+        margin: 4px 0;
+        border-radius: 6px;
+        text-decoration: none;
+    }
+    a.link-button:hover {
+        background-color: #666;
     }
     .post-date {
-        font-size: 0.8em;
-        color: #aaaaaa;
+        font-size: 0.75em;
+        color: #999999;
         margin-left: 10px;
     }
     </style>
 """, unsafe_allow_html=True)
 
-# --------------------- 인기 갤러리 목록 ---------------------
+# 갤러리 목록
 gallery_list = {
     "주식 갤러리": "stock",
     "해외연예 갤러리": "foreign",
@@ -61,10 +67,9 @@ gallery_list = {
 }
 
 st.title("🔥 디시인사이드 인기 갤러리 개념글 수집기")
-st.markdown(f"#### 📅 오늘 날짜: {datetime.now().strftime('%Y-%m-%d')}")
+st.markdown(f"#### 📅 {datetime.now().strftime('%Y-%m-%d')}")
 st.markdown("[👉 디시인사이드 메인으로 가기](https://www.dcinside.com)")
 
-# --------------------- 검색어 입력 ---------------------
 search_query = st.sidebar.text_input("🔍 개념글 제목 검색", "")
 refresh = st.sidebar.button("🔄 새로고침")
 if refresh:
@@ -72,7 +77,6 @@ if refresh:
 st.sidebar.markdown("---")
 st.sidebar.markdown("갤러리 수: " + str(len(gallery_list)))
 
-# --------------------- 개념글 수집 함수 ---------------------
 def fetch_gall_contents(gall_id):
     urls = [
         f"https://gall.dcinside.com/mgallery/board/lists/?id={gall_id}&exception_mode=recommend&sort_type=N",
@@ -104,8 +108,6 @@ def fetch_gall_contents(gall_id):
             continue
     return []
 
-
-# --------------------- 갤러리별 개념글 출력 ---------------------
 for name, gall_id in gallery_list.items():
     with st.expander(f"📌 {name} ({gall_id}) 개념글 보기"):
         with st.spinner("개념글 불러오는 중..."):
@@ -114,10 +116,8 @@ for name, gall_id in gallery_list.items():
                 if posts:
                     for title, link, date in posts:
                         if search_query.lower() in title.lower():
-                            st.markdown(f"- [{title}]({link}) <span class='post-date'>({date})</span>", unsafe_allow_html=True)
+                            st.markdown(f"<a class='link-button' href='{link}' target='_blank'>{title}</a> <span class='post-date'>({date})</span>", unsafe_allow_html=True)
                 else:
                     st.write("(표시할 개념글이 없습니다)")
             except:
                 st.write("❌ 데이터를 불러오지 못했습니다.")
-
-
