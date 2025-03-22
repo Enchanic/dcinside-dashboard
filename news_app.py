@@ -67,35 +67,43 @@ st.markdown("[👉 디시인사이드 메인으로 가기](https://www.dcinside.
 # --------------------- 검색어 입력 ---------------------
 search_query = st.sidebar.text_input("🔍 개념글 제목 검색", "")
 refresh = st.sidebar.button("🔄 새로고침")
+if refresh:
+    st.rerun()
 st.sidebar.markdown("---")
 st.sidebar.markdown("갤러리 수: " + str(len(gallery_list)))
 
 # --------------------- 개념글 수집 함수 ---------------------
 def fetch_gall_contents(gall_id):
-    url = f"https://gall.dcinside.com/mgallery/board/lists/?id={gall_id}&exception_mode=recommend&sort_type=N"
+    urls = [
+        f"https://gall.dcinside.com/mgallery/board/lists/?id={gall_id}&exception_mode=recommend&sort_type=N",
+        f"https://gall.dcinside.com/board/lists/?id={gall_id}&exception_mode=recommend&sort_type=N"
+    ]
     headers = {"User-Agent": "Mozilla/5.0"}
-    try:
-        res = requests.get(url, headers=headers, timeout=5)
-        soup = BeautifulSoup(res.text, "html.parser")
-        rows = soup.select("tr.ub-content")
-        result = []
-        for row in rows:
-            a_tag = row.select_one("td.gall_tit.ub-word > a")
-            date_tag = row.select_one("td.gall_date")
-            if not a_tag or not date_tag:
-                continue
-            title = a_tag.get_text(strip=True)
-            href = a_tag.get("href", "")
-            date = date_tag.get("title") or date_tag.get_text(strip=True)
-            if re.fullmatch(r"\[\d+\]", title):
-                continue
-            if title and "/board/view/" in href:
-                full_url = "https://gall.dcinside.com" + href
-                result.append((title, full_url, date))
-        return result
-    except:
-        pass
+    for url in urls:
+        try:
+            res = requests.get(url, headers=headers, timeout=5)
+            soup = BeautifulSoup(res.text, "html.parser")
+            rows = soup.select("tr.ub-content")
+            result = []
+            for row in rows:
+                a_tag = row.select_one("td.gall_tit.ub-word > a")
+                date_tag = row.select_one("td.gall_date")
+                if not a_tag or not date_tag:
+                    continue
+                title = a_tag.get_text(strip=True)
+                href = a_tag.get("href", "")
+                date = date_tag.get("title") or date_tag.get_text(strip=True)
+                if re.fullmatch(r"\[\d+\]", title):
+                    continue
+                if title and "/board/view/" in href:
+                    full_url = "https://gall.dcinside.com" + href
+                    result.append((title, full_url, date))
+            if result:
+                return result
+        except:
+            continue
     return []
+
 
 # --------------------- 갤러리별 개념글 출력 ---------------------
 for name, gall_id in gallery_list.items():
@@ -112,6 +120,4 @@ for name, gall_id in gallery_list.items():
             except:
                 st.write("❌ 데이터를 불러오지 못했습니다.")
 
-# --------------------- 자동 새로고침 ---------------------
-if refresh:
-    st.experimental_rerun()
+
