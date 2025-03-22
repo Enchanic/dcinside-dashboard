@@ -2,8 +2,5 @@ name: dcinside-dashboard
 app: streamlit
 
 options:
-  env:
-    - name: PORT
-      value: "8501"
   build: pip install -r requirements.txt
-  run: streamlit run news_dashboard.py --server.port=8501 --server.address=0.0.0.0
+  run: streamlit run news_dashboard.py --server.port=$PORT --server.address=0.0.0.0
